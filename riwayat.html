@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Riwayat Rekomendasi - Plantinfo</title>
+  <link rel="stylesheet" href="style.css" />
+
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <img src="img/plant.png" alt="Logo" />
+      <div class="text-logo">
+        <h1>Plantinfo</h1>
+        <p>Tentukan Tanaman yang sesuai dengan lingkunganmu</p>
+      </div>
+    </div>
+    <nav class="navbar">
+      <a href="index.html" class="nav-item">Home</a>
+      <a href="logic.html" class="nav-item">Tentukan Tanaman</a>
+      <a href="jenis.html" class="nav-item">Jenis Tanaman</a>
+      <a href="riwayat.html" class="nav-item active">Riwayat</a>
+      <a href="tentang.html" class="nav-item">Tentang Kami</a>
+    </nav>
+  </header>
+
+  <main class="container2">
+    <h2>Riwayat Rekomendasi Tanaman</h2>
+
+    <!-- Filter dan Urutkan -->
+    <div class="controls-wrapper">
+      <div class="controls">
+        <label for="filterTanah">Filter Jenis Tanah:</label>
+        <select id="filterTanah">
+          <option value="Semua">Semua</option>
+          <option value="Gembur">Gembur</option>
+          <option value="Lempung berpasir">Lempung berpasir</option>
+          <option value="Humus">Humus</option>
+          <option value="Inseptisol">Inseptisol</option>
+          <option value="Andisol">Andisol</option>
+        </select>
+
+        <label for="sortBy">Urutkan berdasarkan:</label>
+        <select id="sortBy">
+          <option value="terbaru">Terbaru</option>
+          <option value="terlama">Terlama</option>
+          <option value="skor_desc">Skor Tertinggi</option>
+          <option value="skor_asc">Skor Terendah</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Tabel Riwayat -->
+    <table>
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Tanggal</th>
+          <th>Suhu (°C)</th>
+          <th>Curah (mm)</th>
+          <th>Ketinggian (mdpl)</th>
+          <th>Tanah</th>
+          <th>Rekomendasi</th>
+          <th>Skor</th>
+          <th>Kategori</th>
+        </tr>
+      </thead>
+      <tbody id="tabelRiwayat"></tbody>
+    </table>
+  </main>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDJHN3UE6HPsjlWt-LEttIbE2p7Z_FEVbA",
+      authDomain: "plantinfo-3bf95.firebaseapp.com",
+      projectId: "plantinfo-3bf95",
+      storageBucket: "plantinfo-3bf95.appspot.com",
+      messagingSenderId: "589124026134",
+      appId: "1:589124026134:web:a4cfb9fa7f5bf464765a37",
+      measurementId: "G-TZWZJ4F8N4"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let semuaRiwayat = [];
+
+    async function ambilData() {
+      const snapshot = await db.collection("riwayat").get();
+      semuaRiwayat = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          waktu: data.waktu.toDate(),
+          suhu: data.input.suhu,
+          curah: data.input.curah,
+          ketinggian: data.input.ketinggian,
+          tanah: data.input.tanah,
+          rekomendasi: data.rekomendasi,
+          skor: data.skor,
+          kategori: data.kategori
+        };
+      });
+
+      tampilkanData();
+    }
+
+    function tampilkanData() {
+      const filterTanah = document.getElementById("filterTanah").value;
+      const sortBy = document.getElementById("sortBy").value;
+
+      let dataTampil = [...semuaRiwayat];
+
+      // Filter tanah
+      if (filterTanah !== "Semua") {
+        dataTampil = dataTampil.filter(item => item.tanah === filterTanah);
+      }
+
+      // Urutkan
+      switch (sortBy) {
+        case "terbaru":
+          dataTampil.sort((a, b) => b.waktu - a.waktu);
+          break;
+        case "terlama":
+          dataTampil.sort((a, b) => a.waktu - b.waktu);
+          break;
+        case "skor_desc":
+          dataTampil.sort((a, b) => b.skor - a.skor);
+          break;
+        case "skor_asc":
+          dataTampil.sort((a, b) => a.skor - b.skor);
+          break;
+      }
+
+      const tbody = document.getElementById("tabelRiwayat");
+      tbody.innerHTML = "";
+      dataTampil.forEach((item, index) => {
+        const row = `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${item.waktu.toLocaleString("id-ID")}</td>
+            <td>${item.suhu}</td>
+            <td>${item.curah}</td>
+            <td>${item.ketinggian}</td>
+            <td>${item.tanah}</td>
+            <td>${item.rekomendasi}</td>
+            <td>${item.skor.toFixed(4)}</td>
+            <td>${item.kategori}</td>
+          </tr>
+        `;
+        tbody.innerHTML += row;
+      });
+
+      if (dataTampil.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9">Tidak ada data untuk filter ini.</td></tr>`;
+      }
+    }
+
+    document.getElementById("filterTanah").addEventListener("change", tampilkanData);
+    document.getElementById("sortBy").addEventListener("change", tampilkanData);
+
+    ambilData();
+  </script>
+</body>
+</html>

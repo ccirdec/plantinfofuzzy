@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Plantinfo - Input Lokasi</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <img src="img/plant.png" alt="Logo" />
+      <div class="text-logo">
+        <h1>Plantinfo</h1>
+        <p>Tentukan Tanaman yang sesuai dengan lingkunganmu</p>
+      </div>
+    </div>
+    <nav class="navbar">
+      <a href="index.html" class="nav-item">Home</a>
+      <a href="logic.html" class="nav-item active">Tentukan Tanaman</a>
+      <a href="jenis.html" class="nav-item">Jenis Tanaman</a>
+      <a href="riwayat.html" class="nav-item">Riwayat</a>
+      <a href="tentang.html" class="nav-item">Tentang Kami</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="form-container">
+      <form id="tanamanForm">
+        <h2>1. Ketinggian Lokasi</h2>
+        <input type="number" name="ketinggian" placeholder="Masukkan dalam meter (mdpl)" required />
+
+        <h2>2. Temperatur rata-rata</h2>
+        <input type="number" name="suhu" placeholder="Masukkan suhu dalam derajat Celsius" required />
+
+        <h2>3. Intensitas Curah Hujan</h2>
+        <input type="number" name="curah" placeholder="Masukkan dalam mm/tahun" required />
+
+        <h2>4. Jenis Tanah</h2>
+        <div class="radio-group">
+          <label><input type="radio" name="tanah" value="Gembur" required /> Gembur</label>
+          <label><input type="radio" name="tanah" value="Lempung berpasir" /> Lempung berpasir</label>
+          <label><input type="radio" name="tanah" value="Humus" /> Humus</label>
+          <label><input type="radio" name="tanah" value="Inseptisol" /> Inseptisol</label>
+          <label><input type="radio" name="tanah" value="Andisol" /> Andisol</label>
+        </div>
+
+        <button type="submit">Kirim</button>
+      </form>
+    </div>
+
+    <div class="image-side">
+      <img src="img/pohon.jpg" alt="Pohon">
+    </div>
+  </main>
+
+  <!-- Firebase Configuration & Fuzzy Cannavacciuolo Logic -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDJHN3UE6HPsjlWt-LEttIbE2p7Z_FEVbA",
+      authDomain: "plantinfo-3bf95.firebaseapp.com",
+      projectId: "plantinfo-3bf95",
+      storageBucket: "plantinfo-3bf95.appspot.com",
+      messagingSenderId: "589124026134",
+      appId: "1:589124026134:web:a4cfb9fa7f5bf464765a37",
+      measurementId: "G-TZWZJ4F8N4"
+    };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    function fuzzyGaussian(x, mean, sigma) {
+      return Math.exp(-Math.pow(x - mean, 2) / (2 * Math.pow(sigma, 2)));
+    }
+
+    function hitungSkor(input, tanaman) {
+      const suhuSkor = fuzzyGaussian(input.suhu, tanaman.suhu, 5);
+      const curahSkor = fuzzyGaussian(input.curah, tanaman.curah, 200);
+      const ketinggianSkor = fuzzyGaussian(input.ketinggian, tanaman.ketinggian, 500);
+      const tanahSkor = input.tanah === tanaman.tanah ? 1 : 0;
+
+      return (suhuSkor + curahSkor + ketinggianSkor + tanahSkor) / 4;
+    }
+
+    function nilaiLinguistik(skor) {
+      if (skor < 0.2) return "Sangat Buruk";
+      else if (skor < 0.4) return "Buruk";
+      else if (skor < 0.6) return "Cukup";
+      else if (skor < 0.75) return "Baik";
+      else return "Sangat Baik";
+    }
+
+    document.getElementById("tanamanForm").addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const data = new FormData(this);
+      const input = {
+        suhu: parseFloat(data.get("suhu")),
+        curah: parseInt(data.get("curah")),
+        ketinggian: parseInt(data.get("ketinggian")),
+        tanah: data.get("tanah")
+      };
+
+      try {
+        const snapshot = await db.collection("tanaman").get();
+        const tanamanList = snapshot.docs.map((doc) => doc.data());
+
+        const hasil = tanamanList.map((tanaman) => {
+          return {
+            nama: tanaman.nama,
+            skor: hitungSkor(input, tanaman)
+          };
+        });
+
+        hasil.sort((a, b) => b.skor - a.skor);
+        const rekomendasi = hasil[0];
+        const kategori = nilaiLinguistik(rekomendasi.skor);
+
+        alert(
+          "Rekomendasi Tanaman (Fuzzy Cannavacciuolo): " + rekomendasi.nama +
+          "\nSkor: " + rekomendasi.skor.toFixed(4) +
+          "\nKategori: " + kategori
+        );
+
+
+        await db.collection("riwayat").add({
+          input,
+          rekomendasi: rekomendasi.nama,
+          skor: rekomendasi.skor,
+          kategori,
+          waktu: new Date()
+        });
+
+      } catch (error) {
+        console.error("Gagal mengambil data dari Firebase:", error);
+        alert("Terjadi kesalahan saat mengambil data tanaman.");
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Data Tanaman - Plantinfo</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <img src="img/plant.png" alt="Logo" />
+      <div class="text-logo">
+        <h1>Plantinfo</h1>
+        <p>Tentukan Tanaman yang sesuai dengan lingkunganmu</p>
+      </div>
+    </div>
+    <nav class="navbar">
+      <a href="index.html" class="nav-item">Home</a>
+      <a href="logic.html" class="nav-item">Tentukan Tanaman</a>
+      <a href="jenis.html" class="nav-item active">Jenis Tanaman</a>
+      <a href="riwayat.html" class="nav-item">Riwayat</a>
+      <a href="tentang.html" class="nav-item">Tentang Kami</a>
+    </nav>
+  </header>
+
+  <main class="container2">
+    <h2>Data Tanaman</h2>
+  
+    <!-- Filter dan Urutkan -->
+    <div class="controls-wrapper">
+      <div class="controls">
+        <label for="filterTanah">Filter Jenis Tanah:</label>
+        <select id="filterTanah">
+          <option value="Semua">Semua</option>
+          <option value="Gembur">Gembur</option>
+          <option value="Lempung berpasir">Lempung berpasir</option>
+          <option value="Humus">Humus</option>
+          <option value="Inseptisol">Inseptisol</option>
+          <option value="Andisol">Andisol</option>
+        </select>
+  
+        <label for="sortBy">Urutkan berdasarkan:</label>
+        <select id="sortBy">
+          <option value="nama_asc">Nama (A-Z)</option>
+          <option value="nama_desc">Nama (Z-A)</option>
+          <option value="suhu_asc">Suhu (Kecil → Besar)</option>
+          <option value="suhu_desc">Suhu (Besar → Kecil)</option>
+          <option value="ketinggian_asc">Ketinggian (Kecil → Besar)</option>
+          <option value="ketinggian_desc">Ketinggian (Besar → Kecil)</option>
+          <option value="curah_asc">Curah Hujan (Kecil → Besar)</option>
+          <option value="curah_desc">Curah Hujan (Besar → Kecil)</option>
+        </select>
+      </div>
+    </div>
+  
+    <!-- Tabel Data -->
+    <table>
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Nama Tanaman</th>
+          <th>Suhu (°C)</th>
+          <th>Ketinggian (mdpl)</th>
+          <th>Curah Hujan (mm/thn)</th>
+          <th>Jenis Tanah</th>
+        </tr>
+      </thead>
+      <tbody id="tabelTanaman"></tbody>
+    </table>
+  </main>
+  
+  <script>
+    // Konfigurasi Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDJHN3UE6HPsjlWt-LEttIbE2p7Z_FEVbA",
+      authDomain: "plantinfo-3bf95.firebaseapp.com",
+      projectId: "plantinfo-3bf95",
+      storageBucket: "plantinfo-3bf95.appspot.com",
+      messagingSenderId: "589124026134",
+      appId: "1:589124026134:web:a4cfb9fa7f5bf464765a37",
+      measurementId: "G-TZWZJ4F8N4"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let dataTanaman = [];
+
+    async function ambilData() {
+      const snapshot = await db.collection("tanaman").get();
+      dataTanaman = snapshot.docs.map(doc => doc.data());
+      tampilkanData();
+    }
+
+    function tampilkanData() {
+      const filter = document.getElementById("filterTanah").value;
+      const sort = document.getElementById("sortBy").value;
+
+      let dataTampil = [...dataTanaman];
+
+      if (filter !== "Semua") {
+        dataTampil = dataTampil.filter(t => t.tanah === filter);
+      }
+
+      dataTampil.sort((a, b) => {
+        const [key, dir] = sort.split("_");
+        if (key === "nama") {
+          return dir === "asc" ? a.nama.localeCompare(b.nama) : b.nama.localeCompare(a.nama);
+        } else {
+          return dir === "asc" ? a[key] - b[key] : b[key] - a[key];
+        }
+      });
+
+      const tbody = document.getElementById("tabelTanaman");
+      tbody.innerHTML = "";
+      dataTampil.forEach((tanaman, i) => {
+        const row = `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${tanaman.nama}</td>
+            <td>${tanaman.suhu}</td>
+            <td>${tanaman.ketinggian}</td>
+            <td>${tanaman.curah}</td>
+            <td>${tanaman.tanah}</td>
+          </tr>
+        `;
+        tbody.innerHTML += row;
+      });
+    }
+
+    document.getElementById("filterTanah").addEventListener("change", tampilkanData);
+    document.getElementById("sortBy").addEventListener("change", tampilkanData);
+
+    ambilData();
+  </script>
+</body>
+</html>

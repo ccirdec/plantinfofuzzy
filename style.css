@@ -1,0 +1,329 @@
+/* Reset dan base font */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+  background-color: #f2f2f2;
+  color: #333;
+}
+
+/* ================= HEADER ================= */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 40px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #ccc;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo img {
+  height: 50px;
+}
+
+.text-logo h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: bold;
+  color: #2f9145;
+}
+
+.text-logo p {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+}
+
+.navbar {
+  display: flex;
+  gap: 24px;
+}
+
+.nav-item {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  padding-bottom: 3px;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.nav-item:hover,
+.nav-item.active {
+  color: #2f9145;
+  border-bottom: 2px solid #2f9145;
+}
+
+
+/* ================= HERO SECTION ================= */
+.hero {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background-color: #ffffff;
+}
+
+.hero-image {
+  flex: 1;
+  background-image: url('img/sawah.jpg');
+  background-size: cover;
+  background-position: center;
+  height: 640px;
+  clip-path: ellipse(100% 100% at left center);
+  filter: brightness(90%) opacity(0.65); 
+}
+
+.hero-text {
+  flex: 1;
+  padding-left: 40px;
+}
+
+.hero-text h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.hero-text p {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.btn {
+  background-color: #2f9145;
+  color: #fff;
+  padding: 12px 20px;
+  text-decoration: none;
+  border-radius: 20px;
+  font-weight: bold;
+  display: inline-block;
+  transition: background-color 0.2s ease;
+}
+
+.btn:hover {
+  background-color: #256e35;
+}
+/* ===== MAIN SECTION ===== */
+.main-section {
+  display: flex;
+  height: calc(100vh - 80px); /* sisa layar setelah header */
+}
+/* ================= FORM SECTION ================= */
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch; 
+  gap: 60px;
+}
+
+.form-container {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+form {
+  width: 360px;
+  background-color: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+form h2 {
+  margin-bottom: 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+input[type="number"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 18px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+button {
+  background-color: #2f9145;
+  color: white;
+  padding: 10px 25px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background-color: #256e35;
+}
+
+/* ================= IMAGE SIDE ================= */
+.image-side {
+  width: 55%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.image-side img {
+  width: 100%;
+  height: 640px;
+  object-fit: cover;
+  clip-path: ellipse(100% 100% at right center);
+  filter: brightness(90%) opacity(0.65);
+}
+
+/* ================= TABEL ================= */
+.result-box {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.result-box h2 {
+  margin-bottom: 20px;
+  text-align: center;
+  color: #4CAF50;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+thead {
+  background-color: #4CAF50;
+  color: white;
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+
+@media screen and (max-width: 600px) {
+  .navbar {
+    flex-direction: column;
+  }
+
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+
+  th, td {
+    padding: 10px;
+    text-align: right;
+    position: relative;
+  }
+
+  th::before, td::before {
+    position: absolute;
+    left: 10px;
+    text-align: left;
+    font-weight: bold;
+    content: attr(data-label);
+  }
+
+  th {
+    background: #4CAF50;
+    color: white;
+  }
+
+  td {
+    background: #fff;
+    border-bottom: 1px solid #eee;
+  }
+}
+/* ================= TENTANG KAMI ================= */
+.team-container {
+  display: flex;
+  justify-content: center;
+  gap: 80px;
+  margin-top: 100px;
+  text-align: center;
+}
+
+.team-member {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-pic {
+  width: 350px;
+  height: 350px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 15px;
+}
+
+
+
+/* ================= HASIL TANAMAN ================= */
+.result-box {
+  background: #fff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  width: 100%;
+}
+
+.result-box h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #2f9145;
+}
+
+.tanaman-utama h3 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.tanaman-utama ul li {
+  margin-bottom: 6px;
+}
+
+.tanaman-lain h4 {
+  margin-top: 24px;
+  font-size: 16px;
+  color: #444;
+  margin-bottom: 10px;
+}
+
+.tanaman-lain ul {
+  padding-left: 18px;
+}
+
+.tanaman-lain ul li {
+  margin-bottom: 5px;
+}
